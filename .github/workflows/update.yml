@@ -1,0 +1,25 @@
+name: Update MOEX Prices
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-moex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download MOEX JSON
+        run: |
+          curl -k -s "https://moex.com" -o tqbr.json
+          curl -k -s "https://moex.com" -o tqtf.json
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add tqbr.json tqtf.json
+          git commit -m "Update prices" || exit 0
+          git push
